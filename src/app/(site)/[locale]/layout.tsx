@@ -1,24 +1,27 @@
+import type { ReactNode } from "react";
 import { Header } from "@/components/Header/Header";
 import { Footer } from "@/components/Footer/Footer";
-import { PageTransition } from "@/components/PageTransition/PageTransition";
+
+type Locale = "ru" | "en";
+
+function toLocale(raw: string): Locale {
+  return raw === "ru" || raw === "en" ? raw : "ru";
+}
 
 export default async function LocaleLayout({
   children,
   params,
 }: {
-  children: React.ReactNode;
-  params: Promise<{ locale: "ru" | "en" }>;
+  children: ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params;
+  const { locale: rawLocale } = await params;
+  const locale = toLocale(rawLocale);
 
   return (
     <>
       <Header locale={locale} />
-
-      <main>
-        <PageTransition>{children}</PageTransition>
-      </main>
-
+      <main>{children}</main>
       <Footer locale={locale} />
     </>
   );
