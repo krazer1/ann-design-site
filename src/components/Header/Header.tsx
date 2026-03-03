@@ -24,6 +24,25 @@ const labels = {
 } as const;
 
 type Locale = "ru" | "en";
+type Theme = "light" | "dark";
+
+function getTheme(): Theme {
+  if (typeof document === "undefined") return "light";
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+}
+
+function applyTheme(next: Theme) {
+  const root = document.documentElement;
+
+  // Включаем плавность ТОЛЬКО на время переключения
+  root.classList.add("theme-transition");
+  window.setTimeout(() => root.classList.remove("theme-transition"), 260);
+
+  if (next === "dark") root.classList.add("dark");
+  else root.classList.remove("dark");
+
+  localStorage.setItem("theme", next);
+}
 
 export function Header({ locale }: { locale: Locale }) {
   const pathname = usePathname();
@@ -102,10 +121,28 @@ export function Header({ locale }: { locale: Locale }) {
     setOpen(false);
   }, [pathname]);
 
+  // Theme UI state
+  const [theme, setTheme] = useState<Theme>("light");
+  useEffect(() => {
+    setTheme(getTheme());
+  }, []);
+
+  const isDark = theme === "dark";
+
   return (
-    <header className="sticky top-0 z-50 border-b border-zinc-200 bg-white/80 backdrop-blur">
+    <header
+      className="sticky top-0 z-50 border-b backdrop-blur"
+      style={{
+        borderColor: "var(--border)",
+        backgroundColor: "color-mix(in srgb, var(--bg) 80%, transparent)",
+      }}
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link href={`/${locale}`} className="text-sm font-medium tracking-wide">
+        <Link
+          href={`/${locale}`}
+          className="text-sm font-medium tracking-wide"
+          style={{ color: "var(--text)" }}
+        >
           ANNA BAVYKINA
         </Link>
 
@@ -116,8 +153,9 @@ export function Header({ locale }: { locale: Locale }) {
           onMouseLeave={() => moveToKey(activeKey)}
         >
           <span
-            className="pointer-events-none absolute -bottom-2 h-[2px] bg-zinc-900 transition-all duration-300 ease-out"
+            className="pointer-events-none absolute -bottom-2 h-[2px] transition-all duration-300 ease-out"
             style={{
+              backgroundColor: "var(--accent)",
               transform: `translateX(${indicator.left}px)`,
               width: indicator.width,
               opacity: indicator.visible ? 1 : 0,
@@ -125,7 +163,7 @@ export function Header({ locale }: { locale: Locale }) {
           />
 
           {items.map((it) => {
-            const isActive = it.key === activeKey;
+            const isActiveLink = it.key === activeKey;
             return (
               <Link
                 key={it.key}
@@ -134,11 +172,8 @@ export function Header({ locale }: { locale: Locale }) {
                   linkRefs.current[it.key] = n;
                 }}
                 onMouseEnter={() => moveToKey(it.key)}
-                className={
-                  isActive
-                    ? "text-zinc-900"
-                    : "text-zinc-500 hover:text-zinc-900 transition-colors duration-200"
-                }
+                className="transition-colors duration-200"
+                style={{ color: isActiveLink ? "var(--text)" : "var(--muted)" }}
               >
                 {it.label}
               </Link>
@@ -148,9 +183,48 @@ export function Header({ locale }: { locale: Locale }) {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
+          {/* Theme toggle */}
+          <button
+            type="button"
+            aria-label="Toggle theme"
+            title={isDark ? "Light theme" : "Dark theme"}
+            onClick={() => {
+              const next: Theme = isDark ? "light" : "dark";
+              applyTheme(next);
+              setTheme(next);
+            }}
+            className="rounded-full border px-3 py-2 text-xs uppercase tracking-widest transition-colors duration-200"
+            style={{
+              borderColor: "var(--border)",
+              color: "var(--text)",
+              backgroundColor: "transparent",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "var(--hover)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = "transparent";
+            }}
+          >
+            {isDark ? "☀" : "☾"}
+          </button>
+
           <Link
             href={switchHref}
-            className="rounded-full border border-zinc-200 px-3 py-2 text-xs uppercase tracking-widest transition hover:border-zinc-900"
+            className="rounded-full border px-3 py-2 text-xs uppercase tracking-widest transition-colors duration-200"
+            style={{
+              borderColor: "var(--border)",
+              color: "var(--text)",
+              backgroundColor: "transparent",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "var(--hover)";
+              (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--accent)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent";
+              (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--border)";
+            }}
           >
             {otherLocale}
           </Link>
@@ -165,26 +239,29 @@ export function Header({ locale }: { locale: Locale }) {
           >
             <span className="relative h-4 w-5">
               <span
-                className={`absolute left-0 top-0 h-[2px] w-5 bg-zinc-900 transition-transform duration-300 ease-out ${
+                className={`absolute left-0 top-0 h-[2px] w-5 transition-transform duration-300 ease-out ${
                   open ? "translate-y-[7px] rotate-45" : ""
                 }`}
+                style={{ backgroundColor: "var(--text)" }}
               />
               <span
-                className={`absolute left-0 top-[7px] h-[2px] w-5 bg-zinc-900 transition-opacity duration-200 ${
+                className={`absolute left-0 top-[7px] h-[2px] w-5 transition-opacity duration-200 ${
                   open ? "opacity-0" : "opacity-100"
                 }`}
+                style={{ backgroundColor: "var(--text)" }}
               />
               <span
-                className={`absolute left-0 bottom-0 h-[2px] w-5 bg-zinc-900 transition-transform duration-300 ease-out ${
+                className={`absolute left-0 bottom-0 h-[2px] w-5 transition-transform duration-300 ease-out ${
                   open ? "-translate-y-[7px] -rotate-45" : ""
                 }`}
+                style={{ backgroundColor: "var(--text)" }}
               />
             </span>
           </button>
         </div>
       </div>
 
-      {/* Mobile overlay меню поверх */}
+      {/* Mobile overlay */}
       <div
         className={`md:hidden fixed inset-0 z-40 transition-opacity duration-300 ease-out ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -192,31 +269,37 @@ export function Header({ locale }: { locale: Locale }) {
       >
         {/* Backdrop */}
         <div
-          className={`absolute inset-0 bg-black/30 transition-opacity duration-500 ease-out ${
+          className={`absolute inset-0 transition-opacity duration-500 ease-out ${
             open ? "opacity-100" : "opacity-0"
           }`}
+          style={{ backgroundColor: "color-mix(in srgb, #000 35%, transparent)" }}
           onClick={() => setOpen(false)}
         />
 
-        {/* Panel (под шапкой) */}
+        {/* Panel */}
         <div
-          className={`absolute left-0 right-0 top-[72px] border-t border-zinc-200 bg-white shadow-[0_24px_70px_-40px_rgba(0,0,0,0.45)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          className={`absolute left-0 right-0 top-[72px] border-t transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
             open ? "translate-y-0 opacity-100" : "-translate-y-4 opacity-0"
           }`}
+          style={{
+            borderColor: "var(--border)",
+            backgroundColor: "var(--bg)",
+            boxShadow: "var(--shadow)",
+          }}
         >
           <nav className="px-4 py-4">
             {items.map((it) => {
-              const isActive = it.key === activeKey;
+              const isActiveLink = it.key === activeKey;
               return (
                 <Link
                   key={it.key}
                   href={it.href}
                   onClick={() => setOpen(false)}
-                  className={[
-                    "block px-2 py-4 text-base transition-colors duration-200",
-                    "text-zinc-700 hover:text-zinc-900",
-                    isActive ? "font-medium text-zinc-900" : "font-normal",
-                  ].join(" ")}
+                  className="block px-2 py-4 text-base transition-colors duration-200"
+                  style={{
+                    color: isActiveLink ? "var(--text)" : "var(--muted)",
+                    fontWeight: isActiveLink ? 500 : 400,
+                  }}
                 >
                   {it.label}
                 </Link>

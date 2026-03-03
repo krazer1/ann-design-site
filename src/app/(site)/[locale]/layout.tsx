@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Header } from "@/components/Header/Header";
 import { Footer } from "@/components/Footer/Footer";
+import { ThemeProvider } from "@/components/ThemeProvider/ThemeProvider";
 
 type Locale = "ru" | "en";
 
@@ -19,10 +20,10 @@ export default async function LocaleLayout({
   const locale = toLocale(rawLocale);
 
   return (
-    <>
+    <ThemeProvider>
       <Header locale={locale} />
       <main>{children}</main>
       <Footer locale={locale} />
-    </>
+    </ThemeProvider>
   );
 }
