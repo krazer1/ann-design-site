@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { projects } from "@/data/projects";
@@ -14,21 +13,24 @@ export default async function HomePage({
 
   return (
     <div>
-      {/* HERO full-bleed */}
+      {/* HERO */}
       <section className="relative h-[calc(100vh-72px)] min-h-[680px] w-full overflow-hidden">
-        {/* Background image */}
-        <Image
-          src="/images/hero.jpg"
-          alt="Interior"
-          fill
-          priority
-          className="object-cover"
+        {/* Light hero */}
+        <div
+          className="hero-bg hero-bg--light"
+          style={{ backgroundImage: "url(/images/hero.png)" }}
         />
 
-        {/* Dark overlay for readability */}
+        {/* Dark hero */}
+        <div
+          className="hero-bg hero-bg--dark"
+          style={{ backgroundImage: "url(/images/hero-dark.png)" }}
+        />
+
+        {/* overlay */}
         <div className="absolute inset-0 bg-black/35" />
 
-        {/* Content */}
+        {/* content */}
         <div className="relative mx-auto flex h-full max-w-6xl px-4">
           <div className="flex max-w-3xl flex-col justify-end pb-14 md:pb-16">
             <p className="mb-5 text-xs tracking-[0.35em] text-white/80 uppercase">
@@ -45,9 +47,7 @@ export default async function HomePage({
                   вдохновляют
                 </>
               ) : (
-                <>
-                  Spaces that inspire
-                </>
+                <>Spaces that inspire</>
               )}
             </h1>
 
@@ -57,6 +57,7 @@ export default async function HomePage({
                 : "I create premium interiors that reflect the individuality and lifestyle of my clients."}
             </p>
 
+            {/* кнопки — квадратные как у тебя было */}
             <div className="mt-10 flex flex-wrap gap-3">
               <Link
                 href={`/${locale}/portfolio`}
@@ -79,7 +80,7 @@ export default async function HomePage({
         </div>
       </section>
 
-      {/* Featured projects */}
+      {/* PROJECTS */}
       <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="flex items-end justify-between gap-6">
           <h2 className="text-2xl md:text-3xl">
@@ -88,7 +89,7 @@ export default async function HomePage({
 
           <Link
             href={`/${locale}/portfolio`}
-            className="text-sm text-zinc-600 hover:text-zinc-900"
+            className="all-projects-link"
           >
             {ru ? "Все проекты" : "All projects"}
           </Link>
