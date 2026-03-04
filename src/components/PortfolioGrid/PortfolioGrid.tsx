@@ -56,14 +56,7 @@ export function PortfolioGrid({ locale, items }: { locale: Locale; items: Projec
 
                   {/* arrow button */}
                   <div className="translate-y-1 opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                    <div
-                      className="flex h-11 w-11 items-center justify-center rounded-full border transition"
-                      style={{
-                        borderColor: "rgba(255,255,255,0.30)",
-                        backgroundColor: "rgba(255,255,255,0.92)",
-                        color: "#18181b",
-                      }}
-                    >
+                    <div className="arrow-pill flex h-11 w-11 items-center justify-center rounded-full">
                       <span className="text-lg" aria-hidden>
                         →
                       </span>

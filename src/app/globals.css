@@ -62,10 +62,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* selection */
 ::selection {
   background: color-mix(in srgb, var(--accent) 25%, transparent);
-  color: var(--text);
+}
+::-moz-selection {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
 /* page animation */
@@ -197,4 +198,21 @@ html.theme-transition * {
 
 .all-projects-link:hover {
   color: var(--text);
+}
+
+.arrow-pill {
+  border: 1px solid var(--border);
+  background: var(--surface); /* было color-mix */
+  color: var(--text);
+  transition: background-color 200ms ease, border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+}
+
+/* Hover: paint according to theme (uses tokens) */
+.arrow-pill:hover {
+  background: var(--text);       /* light => dark fill, dark => light fill */
+  color: var(--accent-contrast); /* light => white text, dark => dark text */
+  border-color: color-mix(in srgb, var(--text) 35%, var(--border));
+  transform: translateY(-1px);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28);
 }
