@@ -59,15 +59,15 @@ export default async function HomePage({
 
             {/* кнопки — квадратные как у тебя было */}
             <div className="mt-10 flex flex-wrap gap-3">
-              <Link
-                href={`/${locale}/portfolio`}
-                className="inline-flex items-center justify-center gap-3 rounded-none bg-white px-6 py-4 text-sm text-zinc-900 transition hover:bg-white/90"
-              >
-                {ru ? "Смотреть портфолио" : "View portfolio"}
-                <span aria-hidden className="text-lg">
-                  →
-                </span>
-              </Link>
+            <Link
+              href={`/${locale}/portfolio`}
+              className="hero-cta inline-flex items-center justify-center gap-3 rounded-none px-6 py-4 text-sm transition"
+            >
+              {ru ? "Смотреть портфолио" : "View portfolio"}
+              <span aria-hidden className="hero-cta-arrow text-lg">
+                →
+              </span>
+            </Link>
 
               <Link
                 href={`/${locale}/contacts`}

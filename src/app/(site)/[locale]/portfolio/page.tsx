@@ -13,11 +13,14 @@ export default async function PortfolioPage({
   return (
     <div>
       {/* HERO (как на Contacts) */}
-      <section className="border-b border-zinc-200">
+      <section className="border-b" style={{ borderColor: "var(--border)" }}>
         <div className="mx-auto max-w-6xl px-4 py-20 md:py-28">
           <div className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
             <div>
-              <div className="text-xs uppercase tracking-[0.35em] text-zinc-500">
+              <div
+                className="text-xs uppercase tracking-[0.35em]"
+                style={{ color: "var(--muted)" }}
+              >
                 {ru ? "Портфолио" : "Portfolio"}
               </div>
 
@@ -37,7 +40,10 @@ export default async function PortfolioPage({
                 )}
               </h1>
 
-              <p className="mt-10 max-w-2xl text-base leading-relaxed text-zinc-600 md:text-lg">
+              <p
+                className="mt-10 max-w-2xl text-base leading-relaxed md:text-lg"
+                style={{ color: "var(--muted)" }}
+              >
                 {ru
                   ? "Коллекция реализованных интерьеров: квартиры, дома и коммерческие пространства."
                   : "A curated collection of completed interiors: apartments, houses and commercial spaces."}
