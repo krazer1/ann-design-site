@@ -15,12 +15,18 @@ export default async function AboutPage({
     ? [
         { k: "Подход", v: "Минимализм, функциональность, сценарии жизни." },
         { k: "Фокус", v: "Качество планировки, свет, материалы, детали." },
-        { k: "Коммуникация", v: "Прозрачные этапы, регулярные созвоны, фиксация решений." },
+        {
+          k: "Коммуникация",
+          v: "Прозрачные этапы, регулярные созвоны, фиксация решений.",
+        },
       ]
     : [
         { k: "Approach", v: "Minimalism, functionality, lifestyle scenarios." },
         { k: "Focus", v: "Layout quality, light, materials, details." },
-        { k: "Communication", v: "Clear stages, regular updates, decisions documented." },
+        {
+          k: "Communication",
+          v: "Clear stages, regular updates, decisions documented.",
+        },
       ];
 
   const steps = ru
@@ -42,9 +48,12 @@ export default async function AboutPage({
   return (
     <div>
       {/* HERO */}
-      <section className="border-b border-zinc-200">
+      <section className="border-b" style={{ borderColor: "var(--border)" }}>
         <div className="mx-auto max-w-6xl px-4 py-20 md:py-28">
-          <div className="text-xs uppercase tracking-[0.35em] text-zinc-500">
+          <div
+            className="text-xs uppercase tracking-[0.35em]"
+            style={{ color: "var(--muted)" }}
+          >
             {ru ? "О дизайнере" : "About"}
           </div>
 
@@ -66,24 +75,21 @@ export default async function AboutPage({
                 )}
               </h1>
 
-              <p className="mt-10 max-w-2xl text-base leading-relaxed text-zinc-600 md:text-lg">
+              <p
+                className="mt-10 max-w-2xl text-base leading-relaxed md:text-lg"
+                style={{ color: "var(--muted)" }}
+              >
                 {ru
                   ? "Дизайн интерьера и архитектура в Санкт-Петербурге. Создаю спокойные, тёплые и функциональные пространства — от концепции до реализации."
                   : "Interior design & architecture in Saint Petersburg. I create calm, warm and functional spaces — from concept to implementation."}
               </p>
 
-              <div className="mt-10 flex flex-wrap gap-3">
-                <Link
-                  href={`/${locale}/portfolio`}
-                  className="inline-flex items-center justify-center rounded-full border border-zinc-900 px-7 py-4 text-sm transition hover:bg-zinc-900 hover:text-white"
-                >
+              <div className="mt-10 flex flex-wrap items-center gap-4">
+                <Link href={`/${locale}/portfolio`} className="btn-cta-outline">
                   {ru ? "Смотреть портфолио" : "View portfolio"}
                 </Link>
 
-                <Link
-                  href={`/${locale}/contacts`}
-                  className="inline-flex items-center justify-center rounded-full bg-zinc-900 px-7 py-4 text-sm text-white transition hover:opacity-90"
-                >
+                <Link href={`/${locale}/contacts`} className="btn-cta">
                   {ru ? "Обсудить проект" : "Discuss a project"}
                 </Link>
               </div>
@@ -91,7 +97,10 @@ export default async function AboutPage({
 
             {/* Photo */}
             <div className="md:col-span-5">
-              <div className="relative overflow-hidden rounded-2xl border border-zinc-200 aspect-[4/5]">
+              <div
+                className="relative aspect-[4/5] overflow-hidden rounded-2xl border"
+                style={{ borderColor: "var(--border)" }}
+              >
                 <Image
                   src="/images/about.jpg"
                   alt={ru ? "Анна Бавыкина" : "Anna Bavykina"}
@@ -102,7 +111,7 @@ export default async function AboutPage({
                 />
               </div>
 
-              <div className="mt-4 text-sm text-zinc-500">
+              <div className="mt-4 text-sm" style={{ color: "var(--muted)" }}>
                 {ru ? "Санкт-Петербург" : "Saint Petersburg"}
               </div>
             </div>
@@ -114,13 +123,19 @@ export default async function AboutPage({
       <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="grid gap-10 md:grid-cols-12">
           <div className="md:col-span-5">
-            <div className="text-xs uppercase tracking-[0.35em] text-zinc-500">
+            <div
+              className="text-xs uppercase tracking-[0.35em]"
+              style={{ color: "var(--muted)" }}
+            >
               {ru ? "Принципы" : "Principles"}
             </div>
             <h2 className="mt-4 text-3xl font-medium leading-tight md:text-4xl">
               {ru ? "Делаю дизайн понятным" : "I make design clear"}
             </h2>
-            <p className="mt-6 text-base leading-relaxed text-zinc-600 md:text-lg">
+            <p
+              className="mt-6 text-base leading-relaxed md:text-lg"
+              style={{ color: "var(--muted)" }}
+            >
               {ru
                 ? "Хороший интерьер — это логика, комфорт и атмосфера. Я проектирую под вашу жизнь: маршруты, хранение, световые сценарии и материалы."
                 : "A good interior is logic, comfort and mood. I design around your life: routes, storage, lighting scenarios and materials."}
@@ -128,12 +143,27 @@ export default async function AboutPage({
           </div>
 
           <div className="md:col-span-7">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-8">
+            <div
+              className="rounded-2xl border p-8"
+              style={{
+                borderColor: "var(--border)",
+                backgroundColor: "var(--surface)",
+                boxShadow: "var(--shadow)",
+              }}
+            >
               <div className="space-y-6">
                 {values.map((x) => (
-                  <div key={x.k} className="grid gap-2 border-b border-zinc-100 pb-6 last:border-b-0 last:pb-0">
-                    <div className="text-sm font-medium text-zinc-900">{x.k}</div>
-                    <div className="text-sm leading-relaxed text-zinc-600">{x.v}</div>
+                  <div
+                    key={x.k}
+                    className="grid gap-2 border-b pb-6 last:border-b-0 last:pb-0"
+                    style={{ borderColor: "color-mix(in srgb, var(--border) 60%, transparent)" }}
+                  >
+                    <div className="text-sm font-medium" style={{ color: "var(--text)" }}>
+                      {x.k}
+                    </div>
+                    <div className="text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+                      {x.v}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -143,9 +173,12 @@ export default async function AboutPage({
       </section>
 
       {/* PROCESS */}
-      <section className="border-t border-zinc-200">
+      <section className="border-t" style={{ borderColor: "var(--border)" }}>
         <div className="mx-auto max-w-6xl px-4 py-16">
-          <div className="text-xs uppercase tracking-[0.35em] text-zinc-500">
+          <div
+            className="text-xs uppercase tracking-[0.35em]"
+            style={{ color: "var(--muted)" }}
+          >
             {ru ? "Процесс" : "Process"}
           </div>
           <h2 className="mt-4 text-3xl font-medium md:text-4xl">
@@ -154,21 +187,33 @@ export default async function AboutPage({
 
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             {steps.map((s, i) => (
-              <div key={s.t} className="rounded-2xl border border-zinc-200 bg-white p-7">
-                <div className="text-xs uppercase tracking-[0.35em] text-zinc-500">
+              <div
+                key={s.t}
+                className="rounded-2xl border p-7"
+                style={{
+                  borderColor: "var(--border)",
+                  backgroundColor: "var(--surface)",
+                  boxShadow: "var(--shadow)",
+                }}
+              >
+                <div
+                  className="text-xs uppercase tracking-[0.35em]"
+                  style={{ color: "var(--muted)" }}
+                >
                   {ru ? `Этап ${i + 1}` : `Step ${i + 1}`}
                 </div>
-                <div className="mt-3 text-lg font-medium text-zinc-900">{s.t}</div>
-                <div className="mt-3 text-sm leading-relaxed text-zinc-600">{s.d}</div>
+                <div className="mt-3 text-lg font-medium" style={{ color: "var(--text)" }}>
+                  {s.t}
+                </div>
+                <div className="mt-3 text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
+                  {s.d}
+                </div>
               </div>
             ))}
           </div>
 
           <div className="mt-12">
-            <Link
-              href={`/${locale}/services`}
-              className="inline-flex items-center justify-center rounded-full border border-zinc-900 px-7 py-4 text-sm transition hover:bg-zinc-900 hover:text-white"
-            >
+            <Link href={`/${locale}/services`} className="btn-cta-outline">
               {ru ? "Посмотреть услуги" : "View services"}
             </Link>
           </div>

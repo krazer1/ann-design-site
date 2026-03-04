@@ -22,7 +22,7 @@ export default async function ProjectPage({
           {ru ? "Проект не найден" : "Project not found"}
         </h1>
         <Link
-          className="mt-6 inline-block text-zinc-600 hover:text-zinc-900"
+          className="mt-6 inline-block link-premium"
           href={`/${locale}/portfolio`}
         >
           ← {ru ? "Вернуться в портфолио" : "Back to portfolio"}
@@ -42,9 +42,12 @@ export default async function ProjectPage({
   return (
     <div>
       {/* HERO */}
-      <section className="border-b border-zinc-200">
+      <section className="border-b" style={{ borderColor: "var(--border)" }}>
         <div className="mx-auto max-w-6xl px-4 py-16 md:py-20">
-          <div className="text-xs uppercase tracking-[0.35em] text-zinc-500">
+          <div
+            className="text-xs uppercase tracking-[0.35em]"
+            style={{ color: "var(--muted)" }}
+          >
             {ru ? "Проект" : "Project"}
           </div>
 
@@ -53,12 +56,14 @@ export default async function ProjectPage({
               <h1 className="text-4xl font-medium leading-[0.95] md:text-6xl">
                 {title}
               </h1>
-              <div className="mt-6 text-sm text-zinc-600">{meta}</div>
+              <div className="mt-6 text-sm" style={{ color: "var(--muted)" }}>
+                {meta}
+              </div>
             </div>
 
             <Link
               href={`/${locale}/portfolio`}
-              className="inline-flex w-fit items-center justify-center rounded-full border border-zinc-900 px-6 py-3 text-sm transition hover:bg-zinc-900 hover:text-white"
+              className="btn-cta"
             >
               {ru ? "К портфолио" : "Back to portfolio"}
             </Link>
@@ -73,7 +78,10 @@ export default async function ProjectPage({
         {/* About project */}
         <div className="mt-14 grid gap-10 md:grid-cols-12">
           <div className="md:col-span-7">
-            <div className="text-xs uppercase tracking-[0.35em] text-zinc-500">
+            <div
+              className="text-xs uppercase tracking-[0.35em]"
+              style={{ color: "var(--muted)" }}
+            >
               {ru ? "О проекте" : "About the project"}
             </div>
 
@@ -81,7 +89,10 @@ export default async function ProjectPage({
               {ru ? "Идея, материалы и атмосфера" : "Concept, materials and mood"}
             </h2>
 
-            <p className="mt-6 max-w-2xl text-base leading-relaxed text-zinc-600 md:text-lg">
+            <p
+              className="mt-6 max-w-2xl text-base leading-relaxed md:text-lg"
+              style={{ color: "var(--muted)" }}
+            >
               {about ||
                 (ru
                   ? "Скоро здесь появится подробное описание: задачи, планировка, материалы, световые сценарии и итог."
@@ -90,8 +101,15 @@ export default async function ProjectPage({
           </div>
 
           <div className="md:col-span-5">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-              <div className="text-sm font-medium">
+            <div
+              className="rounded-2xl border p-6"
+              style={{
+                borderColor: "var(--border)",
+                backgroundColor: "var(--surface)",
+                boxShadow: "var(--shadow)",
+              }}
+            >
+              <div className="text-sm font-medium" style={{ color: "var(--text)" }}>
                 {ru ? "Параметры" : "Details"}
               </div>
 
@@ -102,8 +120,12 @@ export default async function ProjectPage({
                       key={idx}
                       className="flex items-start justify-between gap-4"
                     >
-                      <div className="text-sm text-zinc-500">{row.label}</div>
-                      <div className="text-sm text-zinc-900">{row.value}</div>
+                      <div className="text-sm" style={{ color: "var(--muted)" }}>
+                        {row.label}
+                      </div>
+                      <div className="text-sm" style={{ color: "var(--text)" }}>
+                        {row.value}
+                      </div>
                     </div>
                   )
                 )}

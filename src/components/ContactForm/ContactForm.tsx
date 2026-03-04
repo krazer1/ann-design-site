@@ -6,9 +6,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 type Locale = "ru" | "en";
 type ProjectType = "apartment" | "house" | "commercial" | "consultation";
 
-type Errors = Partial<
-  Record<"name" | "phone" | "email" | "message" | "projectType", string>
->;
+type Errors = Partial<Record<"name" | "phone" | "email" | "message" | "projectType", string>>;
 
 /** -------------------- NAME -------------------- **/
 
@@ -42,9 +40,7 @@ function isValidEmailStrictAllowlist(emailRaw: string) {
   const email = emailRaw.trim().toLowerCase();
   if (!email) return true; // может быть пустым, если есть телефон
 
-  // local-part: начинается с латиницы/цифры
-  const re =
-    /^([a-z0-9][a-z0-9._%+-]{0,63})@([a-z0-9-]+(?:\.[a-z0-9-]+)*)$/i;
+  const re = /^([a-z0-9][a-z0-9._%+-]{0,63})@([a-z0-9-]+(?:\.[a-z0-9-]+)*)$/i;
 
   const m = email.match(re);
   if (!m) return false;
@@ -63,87 +59,57 @@ function sanitizePhoneInput(raw: string) {
   const trimmed = raw.replace(/\s+/g, "");
   const hasPlus = trimmed.startsWith("+");
   const digits = digitsOnly(trimmed);
-  return {
-    hasPlus,
-    digits,
-  };
+  return { hasPlus, digits };
 }
 
-/**
- * Правила:
- * - Разрешаем вид в поле: "+7" + цифры, либо "7" + цифры, либо "8" + цифры
- * - Если поле пустое и ввод начинается с:
- *   - "+" -> делаем "+7" (даже если пользователь не успел 7)
- *   - "7" -> оставляем "7"
- *   - "8" -> оставляем "8"
- *   - "1-9 (кроме 7 и 8)" -> добавляем "+7" перед первой цифрой (один раз, только в начале)
- * - Дальше просто чистим до (опц. "+") + цифры
- */
 function smartPhoneFromUser(prevValue: string, nextRaw: string) {
   const prev = sanitizePhoneInput(prevValue);
   const next = sanitizePhoneInput(nextRaw);
 
-  const isStarting = prevValue.trim().length === 0; // старт ввода
+  const isStarting = prevValue.trim().length === 0;
   const firstChar = nextRaw.trim().charAt(0);
 
-  // Если всё удалили
   if (!nextRaw.trim()) return { value: "", changedByAutoprefix: false };
 
-  // Стартовые автоправила
   if (isStarting) {
-    // 1) Ввёл "+" первым
     if (firstChar === "+") {
-      // принудительно делаем +7 и добавляем остальные цифры (без ведущей 7, если она уже в digits первой)
-      // next.digits может быть "" если он ввёл только "+"
-      // если он ввёл "+8..." — по условию после + должна быть 7 => форсим 7
       const rest = next.digits.startsWith("7") ? next.digits.slice(1) : next.digits;
       return { value: `+7${rest}`, changedByAutoprefix: true };
     }
 
-    // 2) Ввёл цифру первой
     if (/[0-9]/.test(firstChar)) {
       const d = next.digits;
 
-      // если начинается с 7 или 8 — оставляем как есть (без плюса)
       if (d.startsWith("7") || d.startsWith("8")) {
         return { value: d, changedByAutoprefix: false };
       }
 
-      // если начинается с 1-9 (кроме 7 и 8) — дописываем +7 в начало (один раз)
       if (d.length > 0) {
         return { value: `+7${d}`, changedByAutoprefix: true };
       }
     }
   }
 
-  // Если не старт, то просто нормализуем:
-  // - плюс допускается только в начале
-  // - если есть плюс, он должен быть "+7"
-  // - если плюс есть, принудительно держим "+7" и дальше цифры
   if (next.hasPlus) {
     const rest = next.digits.startsWith("7") ? next.digits.slice(1) : next.digits;
     return { value: `+7${rest}`, changedByAutoprefix: false };
   }
 
-  // без плюса — просто цифры
   return { value: next.digits, changedByAutoprefix: false };
 }
 
 function isValidRuPhone11(raw: string) {
   const v = raw.trim();
-  if (!v) return true; // может быть пустым, если есть email
+  if (!v) return true;
 
   const { hasPlus, digits } = sanitizePhoneInput(v);
 
-  // строго 11 цифр
   if (digits.length !== 11) return false;
 
   if (hasPlus) {
-    // если есть плюс, обязано быть +7XXXXXXXXXX
     return v.startsWith("+7") && digits.startsWith("7");
   }
 
-  // без плюса: 7XXXXXXXXXX или 8XXXXXXXXXX
   return digits.startsWith("7") || digits.startsWith("8");
 }
 
@@ -168,8 +134,7 @@ export function ContactForm({ locale }: { locale: Locale }) {
   const [errors, setErrors] = useState<Errors>({});
   const [isLoading, setIsLoading] = useState(false);
 
-  const [projectType, setProjectType] =
-    useState<ProjectType>("consultation");
+  const [projectType, setProjectType] = useState<ProjectType>("consultation");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -177,23 +142,14 @@ export function ContactForm({ locale }: { locale: Locale }) {
 
   const phoneRef = useRef<HTMLInputElement | null>(null);
 
-  const [toast, setToast] = useState<null | {
-    type: "success" | "error";
-    message: string;
-  }>(null);
+  const [toast, setToast] = useState<null | { type: "success" | "error"; message: string }>(null);
 
   const options = useMemo(
     () => [
-      {
-        value: "consultation" as const,
-        label: ru ? "Консультация" : "Consultation",
-      },
+      { value: "consultation" as const, label: ru ? "Консультация" : "Consultation" },
       { value: "apartment" as const, label: ru ? "Квартира" : "Apartment" },
       { value: "house" as const, label: ru ? "Дом" : "House" },
-      {
-        value: "commercial" as const,
-        label: ru ? "Коммерческий интерьер" : "Commercial interior",
-      },
+      { value: "commercial" as const, label: ru ? "Коммерческий интерьер" : "Commercial interior" },
     ],
     [ru]
   );
@@ -208,31 +164,20 @@ export function ContactForm({ locale }: { locale: Locale }) {
 
     const e: Errors = {};
 
-    if (!isValidNameStrict(nName)) {
-      e.name = ru ? "Введите имя" : "Enter a name";
-    }
+    if (!isValidNameStrict(nName)) e.name = ru ? "Введите имя" : "Enter a name";
 
-    // Нужно хотя бы одно: телефон или email
     if (!nEmail && !nPhone) {
       const msg = ru ? "Укажите телефон или email" : "Phone or email required";
       e.phone = msg;
       e.email = msg;
     }
 
-    if (nPhone) {
-      if (!isValidRuPhone11(nPhone)) {
-        e.phone = ru
-          ? "Телефон: +7/7/8 и 11 цифр"
-          : "Phone: +7/7/8 and 11 digits";
-      }
+    if (nPhone && !isValidRuPhone11(nPhone)) {
+      e.phone = ru ? "Телефон: +7/7/8 и 11 цифр" : "Phone: +7/7/8 and 11 digits";
     }
 
-    if (nEmail) {
-      if (!isValidEmailStrictAllowlist(nEmail)) {
-        e.email = ru
-          ? "Введите корректный Email"
-          : "Enter the correct Email address";
-      }
+    if (nEmail && !isValidEmailStrictAllowlist(nEmail)) {
+      e.email = ru ? "Введите корректный Email" : "Enter the correct Email address";
     }
 
     if (nMessage.length < 10) {
@@ -253,6 +198,14 @@ export function ContactForm({ locale }: { locale: Locale }) {
     window.setTimeout(() => setToast(null), ms);
   }
 
+  const inputBase =
+    "w-full rounded-2xl border px-4 py-3 text-sm outline-none transition disabled:opacity-60";
+  const inputStyle: React.CSSProperties = {
+    borderColor: "var(--border)",
+    backgroundColor: "var(--surface)",
+    color: "var(--text)",
+  };
+
   return (
     <>
       <Toast
@@ -272,11 +225,7 @@ export function ContactForm({ locale }: { locale: Locale }) {
           setErrors(e);
 
           if (Object.keys(e).length > 0) {
-            showToast(
-              "error",
-              ru ? "Проверьте поля формы" : "Please check the form",
-              3500
-            );
+            showToast("error", ru ? "Проверьте поля формы" : "Please check the form", 3500);
             return;
           }
 
@@ -292,7 +241,7 @@ export function ContactForm({ locale }: { locale: Locale }) {
                 locale,
                 projectType,
                 name: name.trim(),
-                phone: phoneNormalized, // ✅ всегда +7XXXXXXXXXX или ""
+                phone: phoneNormalized,
                 email: email.trim(),
                 message: message.trim(),
               }),
@@ -306,17 +255,12 @@ export function ContactForm({ locale }: { locale: Locale }) {
               setProjectType("consultation");
               setErrors({});
 
-              showToast(
-                "success",
-                ru ? "Спасибо! Заявка отправлена." : "Thanks! Request sent.",
-                4500
-              );
+              showToast("success", ru ? "Спасибо! Заявка отправлена." : "Thanks! Request sent.", 4500);
             } else {
               const j = await res.json().catch(() => null);
               showToast(
                 "error",
-                (j?.error as string) ||
-                  (ru ? "Не удалось отправить" : "Could not send"),
+                (j?.error as string) || (ru ? "Не удалось отправить" : "Could not send"),
                 5500
               );
             }
@@ -327,7 +271,7 @@ export function ContactForm({ locale }: { locale: Locale }) {
           }
         }}
       >
-        {/* Тип проекта (кастомный селект) */}
+        {/* Тип проекта */}
         <Field label={ru ? "Тип проекта" : "Project type"} error={errors.projectType}>
           <ProjectTypeDropdown
             value={projectType}
@@ -348,7 +292,8 @@ export function ContactForm({ locale }: { locale: Locale }) {
             }}
             onBlur={() => setErrors(validateAll())}
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-900"
+            className={inputBase}
+            style={inputStyle}
             placeholder={ru ? "Анна-Мария" : "Anna-Maria"}
             autoComplete="name"
           />
@@ -362,15 +307,11 @@ export function ContactForm({ locale }: { locale: Locale }) {
             onChange={(e) => {
               const raw = e.target.value;
 
-              const { value: nextValue, changedByAutoprefix } = smartPhoneFromUser(
-                phone,
-                raw
-              );
+              const { value: nextValue, changedByAutoprefix } = smartPhoneFromUser(phone, raw);
 
               setPhone(nextValue);
               setErrors(validateAll({ phone: nextValue }));
 
-              // если мы добавили +7 автоматически — ставим курсор в конец (это происходит только на самом старте)
               if (changedByAutoprefix) {
                 requestAnimationFrame(() => {
                   const el = phoneRef.current;
@@ -382,7 +323,8 @@ export function ContactForm({ locale }: { locale: Locale }) {
             }}
             onBlur={() => setErrors(validateAll())}
             disabled={isLoading}
-            className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-900"
+            className={inputBase}
+            style={inputStyle}
             placeholder={ru ? "+7___________ / 7___________ / 8___________" : "+7... / 7... / 8..."}
             inputMode="tel"
             autoComplete="tel"
@@ -401,7 +343,8 @@ export function ContactForm({ locale }: { locale: Locale }) {
             onBlur={() => setErrors(validateAll())}
             disabled={isLoading}
             type="email"
-            className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-900"
+            className={inputBase}
+            style={inputStyle}
             placeholder="name@gmail.com"
             autoComplete="email"
           />
@@ -419,7 +362,8 @@ export function ContactForm({ locale }: { locale: Locale }) {
             onBlur={() => setErrors(validateAll())}
             disabled={isLoading}
             rows={5}
-            className="w-full resize-none rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-zinc-900"
+            className={[inputBase, "resize-none"].join(" ")}
+            style={inputStyle}
             placeholder={
               ru
                 ? "Коротко опишите задачу: объект, метраж, сроки, стиль…"
@@ -431,12 +375,36 @@ export function ContactForm({ locale }: { locale: Locale }) {
 
         <button
           type="submit"
-          disabled={!canSubmit}
-          className="mt-2 inline-flex items-center justify-center rounded-full bg-zinc-900 px-6 py-3 text-sm text-white transition hover:opacity-90 disabled:opacity-50"
+          disabled={!canSubmit || isLoading}
+          className="btn-cta group mt-2"
         >
           {isLoading ? (ru ? "Отправка..." : "Sending...") : ru ? "Отправить" : "Send"}
+          <span
+            aria-hidden
+            className="ml-2 inline-block transition-transform duration-300 ease-out group-hover:translate-x-1 group-focus-visible:translate-x-1"
+          >
+            →
+          </span>
         </button>
       </form>
+
+      {/* Placeholder color + focus border without JS */}
+      <style jsx global>{`
+        input::placeholder,
+        textarea::placeholder {
+          color: var(--muted);
+          opacity: 0.75;
+        }
+        input:focus,
+        textarea:focus,
+        button:focus {
+          outline: none;
+        }
+        input:focus,
+        textarea:focus {
+          border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+        }
+      `}</style>
     </>
   );
 }
@@ -453,7 +421,9 @@ function Field({
   return (
     <div className="grid gap-2">
       <div className="flex items-baseline justify-between gap-4">
-        <label className="text-sm text-zinc-600">{label}</label>
+        <label className="text-sm" style={{ color: "var(--muted)" }}>
+          {label}
+        </label>
         {error && <span className="text-xs text-rose-700">{error}</span>}
       </div>
       {children}
@@ -494,33 +464,44 @@ function ProjectTypeDropdown({
         type="button"
         disabled={disabled}
         onClick={() => setOpen((s) => !s)}
-        className="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-left text-sm outline-none transition focus:border-zinc-900 disabled:opacity-60"
+        className="w-full rounded-2xl border px-4 py-3 text-left text-sm outline-none transition disabled:opacity-60"
+        style={{
+          borderColor: "var(--border)",
+          backgroundColor: "var(--surface)",
+          color: "var(--text)",
+        }}
       >
         <span className="block pr-8">{selected}</span>
-        <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-zinc-700">
+        <span
+          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2"
+          style={{ color: "var(--muted)" }}
+        >
           ▾
         </span>
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg">
+        <div
+          className="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border shadow-lg"
+          style={{
+            borderColor: "var(--border)",
+            backgroundColor: "var(--surface)",
+          }}
+        >
           <ul className="max-h-64 overflow-auto py-1">
             {options.map((o) => {
               const active = o.value === value;
+
               return (
                 <li key={o.value}>
                   <button
                     type="button"
+                    data-active={active ? "true" : "false"}
                     onClick={() => {
                       onChange(o.value);
                       setOpen(false);
                     }}
-                    className={[
-                      "w-full px-4 py-2 text-left text-sm transition",
-                      active
-                        ? "bg-zinc-900 text-white"
-                        : "bg-white text-zinc-900 hover:bg-zinc-100",
-                    ].join(" ")}
+                    className="dropdown-item w-full px-4 py-2 text-left text-sm transition"
                   >
                     {o.label}
                   </button>

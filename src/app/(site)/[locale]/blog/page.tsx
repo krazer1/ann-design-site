@@ -27,9 +27,12 @@ export default async function BlogPage({
   return (
     <div>
       {/* HERO как на других страницах */}
-      <section className="border-b border-zinc-200">
+      <section className="border-b" style={{ borderColor: "var(--border)" }}>
         <div className="mx-auto max-w-6xl px-4 py-20 md:py-28">
-          <div className="text-xs uppercase tracking-[0.35em] text-zinc-500">
+          <div
+            className="text-xs uppercase tracking-[0.35em]"
+            style={{ color: "var(--muted)" }}
+          >
             {ru ? "Блог" : "Blog"}
           </div>
 
@@ -49,7 +52,10 @@ export default async function BlogPage({
             )}
           </h1>
 
-          <p className="mt-10 max-w-2xl text-base leading-relaxed text-zinc-600 md:text-lg">
+          <p
+            className="mt-10 max-w-2xl text-base leading-relaxed md:text-lg"
+            style={{ color: "var(--muted)" }}
+          >
             {ru
               ? "Короткие статьи про интерьер, архитектуру и детали, которые делают пространство дороже."
               : "Short articles about interior design, architecture and details that make a space feel more premium."}
@@ -64,8 +70,15 @@ export default async function BlogPage({
             <Link
               key={p.slug}
               href={`/${locale}/blog/${p.slug}`}
-              className="group rounded-2xl border border-zinc-200 bg-white overflow-hidden transition
-                         hover:border-zinc-900 hover:shadow-[0_18px_60px_rgba(0,0,0,0.08)]"
+              className={[
+                "group overflow-hidden rounded-2xl border transition",
+                "hover:-translate-y-[1px]",
+              ].join(" ")}
+              style={{
+                borderColor: "var(--border)",
+                backgroundColor: "var(--surface)",
+                boxShadow: "var(--shadow)",
+              }}
             >
               <div className="relative aspect-[16/10] overflow-hidden">
                 <Image
@@ -77,14 +90,19 @@ export default async function BlogPage({
                   placeholder="blur"
                   blurDataURL={tinyBlurDataURL()}
                 />
+
+                {/* мягкая вуаль на hover (в обеих темах) */}
                 <div className="absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/12" />
 
-                {/* лёгкий “штрих” */}
+                {/* нижний градиент как штрих */}
                 <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/22 to-transparent opacity-0 transition group-hover:opacity-100" />
               </div>
 
               <div className="p-6 md:p-7">
-                <div className="text-xs uppercase tracking-[0.35em] text-zinc-500">
+                <div
+                  className="text-xs uppercase tracking-[0.35em]"
+                  style={{ color: "var(--muted)" }}
+                >
                   {formatDate(p.date, locale)}
                 </div>
 
@@ -92,11 +110,14 @@ export default async function BlogPage({
                   {ru ? p.title_ru : p.title_en}
                 </h2>
 
-                <p className="mt-3 text-sm leading-relaxed text-zinc-600">
+                <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
                   {ru ? p.excerpt_ru : p.excerpt_en}
                 </p>
 
-                <div className="mt-6 inline-flex items-center gap-2 text-sm text-zinc-900">
+                <div
+                  className="mt-6 inline-flex items-center gap-2 text-sm"
+                  style={{ color: "var(--text)" }}
+                >
                   {ru ? "Читать" : "Read"}
                   <span
                     aria-hidden

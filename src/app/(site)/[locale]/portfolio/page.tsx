@@ -50,10 +50,7 @@ export default async function PortfolioPage({
               </p>
             </div>
 
-            <Link
-              href={`/${locale}/contacts`}
-              className="inline-flex w-fit items-center justify-center rounded-full border border-zinc-900 px-6 py-3 text-sm transition hover:bg-zinc-900 hover:text-white"
-            >
+            <Link href={`/${locale}/contacts`} className="btn-cta">
               {ru ? "Обсудить проект" : "Discuss a project"}
             </Link>
           </div>

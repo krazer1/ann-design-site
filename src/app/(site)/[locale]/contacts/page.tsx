@@ -54,9 +54,12 @@ export default async function ContactsPage({
   return (
     <div>
       {/* HERO */}
-      <section className="border-b border-zinc-200">
+      <section className="border-b" style={{ borderColor: "var(--border)" }}>
         <div className="mx-auto max-w-6xl px-4 py-20 md:py-28">
-          <div className="text-xs uppercase tracking-[0.35em] text-zinc-500">
+          <div
+            className="text-xs uppercase tracking-[0.35em]"
+            style={{ color: "var(--muted)" }}
+          >
             {ru ? "Контакты" : "Contacts"}
           </div>
 
@@ -76,7 +79,10 @@ export default async function ContactsPage({
             )}
           </h1>
 
-          <p className="mt-10 max-w-2xl text-base leading-relaxed text-zinc-600 md:text-lg">
+          <p
+            className="mt-10 max-w-2xl text-base leading-relaxed md:text-lg"
+            style={{ color: "var(--muted)" }}
+          >
             {ru
               ? "Заполните форму ниже или свяжитесь со мной любым удобным способом. Первая консультация бесплатна."
               : "Fill out the form below or contact me in any convenient way. The first consultation is free."}
@@ -87,7 +93,17 @@ export default async function ContactsPage({
       {/* INFO + FORM */}
       <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="grid gap-12 md:grid-cols-2">
-          {/* LEFT */}
+          {/* FORM (LEFT) */}
+          <div>
+            <ContactForm locale={locale} />
+            <div className="mt-6 text-xs text-zinc-500">
+              {ru
+                ? "Нажимая «Отправить», вы соглашаетесь с обработкой персональных данных."
+                : "By clicking “Send”, you agree to the processing of personal data."}
+            </div>
+          </div>
+
+          {/* INFO (RIGHT) */}
           <div>
             <h2 className="text-2xl font-medium md:text-3xl">
               {ru ? "Контактная информация" : "Contact information"}
@@ -135,24 +151,11 @@ export default async function ContactsPage({
               </div>
             </div>
           </div>
-
-          {/* FORM */}
-          <div>
-            <ContactForm locale={locale} />
-            <div className="mt-6 text-xs text-zinc-500">
-              {ru
-                ? "Нажимая «Отправить», вы соглашаетесь с обработкой персональных данных."
-                : "By clicking “Send”, you agree to the processing of personal data."}
-            </div>
-          </div>
         </div>
       </section>
 
       {/* FAQ */}
-      <Faq
-        title={ru ? "Частые вопросы" : "Frequently asked questions"}
-        items={faq}
-      />
+      <Faq title={ru ? "Частые вопросы" : "Frequently asked questions"} items={faq} />
     </div>
   );
 }
@@ -168,26 +171,41 @@ function InfoRow({
   href?: string;
   icon: React.ReactNode;
 }) {
+  const isExternal = Boolean(href?.startsWith("http"));
+
   return (
     <div className="flex items-start gap-5">
-      <div className="flex h-12 w-12 items-center justify-center border border-zinc-200 text-zinc-800">
+      <div
+        className="flex h-12 w-12 items-center justify-center border"
+        style={{
+          borderColor: "var(--border)",
+          backgroundColor: "var(--surface)",
+          color: "var(--text)",
+          boxShadow: "var(--shadow)",
+        }}
+      >
         {icon}
       </div>
 
       <div>
-        <div className="text-sm text-zinc-500">{title}</div>
+        <div className="text-sm" style={{ color: "var(--muted)" }}>
+          {title}
+        </div>
 
         {href ? (
           <a
-            className="mt-1 inline-block text-base text-zinc-900 hover:opacity-70"
+            className="mt-1 inline-block text-base transition-opacity hover:opacity-70"
+            style={{ color: "var(--text)" }}
             href={href}
-            target={href.startsWith("http") ? "_blank" : undefined}
-            rel={href.startsWith("http") ? "noreferrer" : undefined}
+            target={isExternal ? "_blank" : undefined}
+            rel={isExternal ? "noreferrer" : undefined}
           >
             {value}
           </a>
         ) : (
-          <div className="mt-1 text-base text-zinc-900">{value}</div>
+          <div className="mt-1 text-base" style={{ color: "var(--text)" }}>
+            {value}
+          </div>
         )}
       </div>
     </div>

@@ -252,3 +252,113 @@ html.theme-transition * {
 .hero-cta:hover .hero-cta-arrow {
   transform: translateX(4px);
 }
+
+/* =========================
+   Universal CTA button
+========================= */
+
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  transition: background-color 200ms ease, border-color 200ms ease,
+    color 200ms ease, transform 120ms ease;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- LIGHT THEME ---------- */
+
+:root .btn-cta {
+  background: transparent;
+  color: #18181b;
+  border: 1px solid #18181b;
+}
+
+:root .btn-cta:hover {
+  background: #18181b;
+  color: #ffffff;
+}
+
+/* ---------- DARK THEME ---------- */
+
+.dark .btn-cta {
+  background: transparent;
+  color: rgba(255,255,255,0.92);
+  border: 1px solid rgba(255,255,255,0.7);
+}
+
+.dark .btn-cta:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.85);
+}
+
+/* ---------- MOBILE TAP FEEDBACK ---------- */
+
+.btn-cta:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.btn-cta-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 9999px;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--text);
+
+  transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease,
+    transform 120ms ease;
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-cta-outline:hover {
+  background: var(--text);
+  color: var(--accent-contrast);
+}
+
+.btn-cta-outline:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Make outline button hover consistent in dark theme */
+.dark .btn-cta-outline:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+/* dropdown items */
+
+.dropdown-item {
+  color: var(--text);
+}
+
+.dropdown-item:hover {
+  background: var(--hover);
+}
+
+/* выбранный пункт */
+.dropdown-item[data-active="true"] {
+  background: var(--text);
+  color: var(--accent-contrast);
+  font-weight: 500;
+}
+
+/* hover на выбранном пункте */
+.dropdown-item[data-active="true"]:hover {
+  background: var(--text);
+}

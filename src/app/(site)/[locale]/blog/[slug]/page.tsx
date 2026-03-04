@@ -37,7 +37,7 @@ export default async function BlogPostPage({
     return (
       <div className="mx-auto max-w-6xl px-4 py-20">
         <h1 className="text-3xl font-medium">{ru ? "Статья не найдена" : "Post not found"}</h1>
-        <Link className="mt-6 inline-block text-zinc-600 hover:text-zinc-900" href={`/${locale}/blog`}>
+        <Link className="mt-6 inline-block link-premium" href={`/${locale}/blog`}>
           ← {ru ? "Вернуться в блог" : "Back to blog"}
         </Link>
       </div>
@@ -75,9 +75,15 @@ export default async function BlogPostPage({
               <div className="mb-7">
                 <Link
                   href={`/${locale}/blog`}
-                  className="inline-flex items-center gap-2 text-sm text-white/85 hover:text-white"
+                  className="group inline-flex items-center gap-2 text-sm text-white/85 transition hover:text-white focus-visible:text-white"
                 >
-                  <span aria-hidden>←</span> {ru ? "Все статьи" : "All posts"}
+                  <span
+                    aria-hidden
+                    className="inline-block transition-transform duration-300 ease-out group-hover:-translate-x-1 group-focus-visible:-translate-x-1"
+                  >
+                    ←
+                  </span>
+                  {ru ? "Все статьи" : "All posts"}
                 </Link>
               </div>
 
@@ -100,11 +106,34 @@ export default async function BlogPostPage({
         </div>
       </section>
 
-      {/* CONTENT (левое выравнивание, без “центр под фото”) */}
+      {/* CONTENT */}
       <section className="mx-auto max-w-6xl px-4 py-14">
         <div className="grid md:grid-cols-12">
           <div className="md:col-span-8">
-            <article className="prose prose-zinc max-w-none">
+            <article
+              className="prose max-w-none"
+              style={
+                {
+                  /* theme-aware typography */
+                  color: "var(--text)",
+                  "--tw-prose-body": "var(--muted)",
+                  "--tw-prose-headings": "var(--text)",
+                  "--tw-prose-links": "var(--text)",
+                  "--tw-prose-bold": "var(--text)",
+                  "--tw-prose-counters": "var(--muted)",
+                  "--tw-prose-bullets": "var(--muted)",
+                  "--tw-prose-hr": "var(--border)",
+                  "--tw-prose-quotes": "var(--text)",
+                  "--tw-prose-quote-borders": "var(--border)",
+                  "--tw-prose-captions": "var(--muted)",
+                  "--tw-prose-code": "var(--text)",
+                  "--tw-prose-pre-code": "var(--text)",
+                  "--tw-prose-pre-bg": "var(--surface-2)",
+                  "--tw-prose-th-borders": "var(--border)",
+                  "--tw-prose-td-borders": "var(--border)",
+                } as React.CSSProperties
+              }
+            >
               {content.map((b, idx) => {
                 if (b.type === "h2") return <h2 key={idx}>{b.text}</h2>;
                 if (b.type === "ul")
@@ -119,15 +148,24 @@ export default async function BlogPostPage({
               })}
             </article>
 
-            {/* Bottom back link (практично, без кнопок) */}
-            <div className="mt-14 border-t border-zinc-200 pt-8">
-              <Link className="text-sm text-zinc-600 hover:text-zinc-900" href={`/${locale}/blog`}>
-                ← {ru ? "Назад в блог" : "Back to blog"}
+            {/* Bottom back link */}
+            <div className="mt-14 border-t pt-8" style={{ borderColor: "var(--border)" }}>
+              <Link
+                href={`/${locale}/blog`}
+                className="group inline-flex items-center gap-2 text-sm link-premium"
+              >
+                <span
+                  aria-hidden
+                  className="inline-block transition-transform duration-300 ease-out group-hover:-translate-x-1 group-focus-visible:-translate-x-1"
+                >
+                  ←
+                </span>
+                {ru ? "Назад в блог" : "Back to blog"}
               </Link>
             </div>
           </div>
 
-          {/* правую колонку оставляем пустой ради воздуха (как у студий) */}
+          {/* air column */}
           <div className="hidden md:col-span-4 md:block" />
         </div>
       </section>
