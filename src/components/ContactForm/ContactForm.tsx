@@ -8,21 +8,62 @@ type ProjectType = "apartment" | "house" | "commercial" | "consultation";
 
 type Errors = Partial<Record<"name" | "phone" | "email" | "message" | "projectType", string>>;
 
+/** -------------------- LIMITS -------------------- **/
+
+const NAME_MAX = 25;
+const EMAIL_MAX = 100;
+const MESSAGE_MAX = 3000;
+
+function limitMessage(ru: boolean, max: number) {
+  return ru ? `Достигнут лимит ${max}` : `Limit reached ${max}`;
+}
+
+function clampToMax(v: string, max: number) {
+  return v.length <= max ? v : v.slice(0, max);
+}
+
 /** -------------------- NAME -------------------- **/
 
 function isValidNameStrict(value: string) {
   const v = value.trim();
   if (!v) return false;
 
-  // Только латиница ИЛИ только кириллица. Разрешаем пробел/дефис между словами.
-  const latin = /^[A-Za-z]+(?:[ -][A-Za-z]+)*$/;
-  const cyr = /^[А-Яа-яЁё]+(?:[ -][А-Яа-яЁё]+)*$/;
+  // Только буквы RU/EN, один дефис максимум, дефис строго между буквами
+  // Ок: "Anna", "Анна", "Anna-Maria", "Анна-Мария"
+  // Не ок: "-Anna", "Anna-", "Anna--Maria", "An.na", "An/na", "Anna Maria"
+  const re = /^[A-Za-zА-Яа-яЁё]+(?:-[A-Za-zА-Яа-яЁё]+)?$/;
 
   if (v.length < 2 || v.length > 60) return false;
-  return latin.test(v) || cyr.test(v);
+  return re.test(v);
 }
 
-/** -------------------- EMAIL (STRICT DOMAINS) -------------------- **/
+function sanitizeNameForTyping(raw: string) {
+  let out = "";
+  let usedHyphen = false;
+
+  for (const ch of raw) {
+    const isLetter = /[A-Za-zА-Яа-яЁё]/.test(ch);
+    if (isLetter) {
+      out += ch;
+      continue;
+    }
+
+    if (ch === "-") {
+      // дефис разрешаем 1 раз и только если слева уже есть буква
+      if (!usedHyphen && out.length > 0) {
+        out += "-";
+        usedHyphen = true;
+      }
+      continue;
+    }
+
+    // остальные символы игнорируем
+  }
+
+  return out;
+}
+
+/** -------------------- EMAIL (STRICT DOMAINS + STRICT CHARS) -------------------- **/
 
 const ALLOWED_EMAIL_DOMAINS = new Set([
   "gmail.com",
@@ -40,13 +81,38 @@ function isValidEmailStrictAllowlist(emailRaw: string) {
   const email = emailRaw.trim().toLowerCase();
   if (!email) return true; // может быть пустым, если есть телефон
 
-  const re = /^([a-z0-9][a-z0-9._%+-]{0,63})@([a-z0-9-]+(?:\.[a-z0-9-]+)*)$/i;
+  // запрет пробелов/табов/любого whitespace
+  if (/\s/.test(email)) return false;
+
+  // запрет символов: ! # $ % & ~ = , ' и +
+  if (/[!#$%&~=,']/.test(email)) return false;
+  if (/\+/.test(email)) return false;
+
+  // запрет двух точек подряд
+  if (/\.\./.test(email)) return false;
+
+  // базовый валидатор формы
+  const re = /^([a-z0-9][a-z0-9._-]{0,63})@([a-z0-9-]+(?:\.[a-z0-9-]+)*)$/i;
 
   const m = email.match(re);
   if (!m) return false;
 
   const domain = m[2].toLowerCase();
   return ALLOWED_EMAIL_DOMAINS.has(domain);
+}
+
+function sanitizeEmailForTyping(raw: string) {
+  // 1) убираем whitespace
+  let v = raw.replace(/\s+/g, "");
+
+  // 2) вырезаем запрещенные символы
+  v = v.replace(/[!#$%&~=,']/g, "");
+  v = v.replace(/\+/g, "");
+
+  // 3) схлопываем множественные точки подряд
+  while (v.includes("..")) v = v.replace(/\.\./g, ".");
+
+  return v;
 }
 
 /** -------------------- PHONE (SMART PREFIX ON FIRST INPUT) -------------------- **/
@@ -126,6 +192,60 @@ function normalizeRuPhoneForSubmit(raw: string) {
   return "";
 }
 
+function phoneMaxLenByValue(v: string) {
+  // "+7.........." => 12 including "+"
+  // "7.........." / "8.........." => 11 including first digit
+  return v.trim().startsWith("+") ? 12 : 11;
+}
+
+/** -------------------- BEFORE INPUT LIMIT (SHOW MESSAGE WHEN TRY TO TYPE MORE) -------------------- **/
+
+function isInsertInput(e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  const ne = e.nativeEvent as unknown as { inputType?: string };
+  const t = ne?.inputType;
+  return typeof t === "string" ? t.startsWith("insert") : true;
+}
+
+function handleBeforeInputLimit(
+  ru: boolean,
+  max: number,
+  currentValue: string,
+  setErrors: React.Dispatch<React.SetStateAction<Errors>>,
+  field: keyof Errors
+) {
+  return (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (currentValue.length >= max && isInsertInput(e)) {
+      setErrors((prev) => ({ ...prev, [field]: limitMessage(ru, max) }));
+      e.preventDefault();
+    }
+  };
+}
+
+function handlePasteLimit(
+  ru: boolean,
+  max: number,
+  setValue: (v: string) => void,
+  setErrors: React.Dispatch<React.SetStateAction<Errors>>,
+  field: keyof Errors
+) {
+  return (e: React.ClipboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const paste = e.clipboardData.getData("text");
+    if (!paste) return;
+
+    const el = e.currentTarget;
+    const start = el.selectionStart ?? el.value.length;
+    const end = el.selectionEnd ?? el.value.length;
+
+    const next = el.value.slice(0, start) + paste + el.value.slice(end);
+
+    if (next.length > max) {
+      e.preventDefault();
+      setValue(next.slice(0, max));
+      setErrors((prev) => ({ ...prev, [field]: limitMessage(ru, max) }));
+    }
+  };
+}
+
 /** -------------------- CONTACT FORM -------------------- **/
 
 export function ContactForm({ locale }: { locale: Locale }) {
@@ -157,30 +277,45 @@ export function ContactForm({ locale }: { locale: Locale }) {
   function validateAll(
     next?: Partial<{ name: string; phone: string; email: string; message: string }>
   ): Errors {
-    const nName = (next?.name ?? name).trim();
-    const nPhone = (next?.phone ?? phone).trim();
-    const nEmail = (next?.email ?? email).trim();
-    const nMessage = (next?.message ?? message).trim();
+    const nName = next?.name ?? name;
+    const nPhone = next?.phone ?? phone;
+    const nEmail = next?.email ?? email;
+    const nMessage = next?.message ?? message;
 
     const e: Errors = {};
 
-    if (!isValidNameStrict(nName)) e.name = ru ? "Введите имя" : "Enter a name";
+    // hard max limits (чтобы "лимит" не пропадал при blur/revalidate)
+    if (nName.length > NAME_MAX) e.name = limitMessage(ru, NAME_MAX);
+    if (nEmail.length > EMAIL_MAX) e.email = limitMessage(ru, EMAIL_MAX);
+    if (nMessage.length > MESSAGE_MAX) e.message = limitMessage(ru, MESSAGE_MAX);
 
-    if (!nEmail && !nPhone) {
+    const tName = nName.trim();
+    const tPhone = nPhone.trim();
+    const tEmail = nEmail.trim();
+    const tMessage = nMessage.trim();
+
+    // Имя: пустое / некорректное
+    if (!tName) {
+      e.name = ru ? "Введите имя" : "Enter a name";
+    } else if (!isValidNameStrict(tName)) {
+      e.name = ru ? "Введите корректное имя" : "Enter a valid name";
+    }
+
+    if (!tEmail && !tPhone) {
       const msg = ru ? "Укажите телефон или email" : "Phone or email required";
       e.phone = msg;
       e.email = msg;
     }
 
-    if (nPhone && !isValidRuPhone11(nPhone)) {
+    if (tPhone && !isValidRuPhone11(tPhone)) {
       e.phone = ru ? "Телефон: +7/7/8 и 11 цифр" : "Phone: +7/7/8 and 11 digits";
     }
 
-    if (nEmail && !isValidEmailStrictAllowlist(nEmail)) {
+    if (tEmail && !isValidEmailStrictAllowlist(tEmail)) {
       e.email = ru ? "Введите корректный Email" : "Enter the correct Email address";
     }
 
-    if (nMessage.length < 10) {
+    if (!e.message && tMessage.length < 10) {
       e.message = ru ? "Сообщение: минимум 10 символов" : "Message: at least 10 chars";
     }
 
@@ -285,10 +420,21 @@ export function ContactForm({ locale }: { locale: Locale }) {
         <Field label={ru ? "Имя" : "Name"} error={errors.name}>
           <input
             value={name}
+            onBeforeInput={handleBeforeInputLimit(ru, NAME_MAX, name, setErrors, "name")}
+            onPaste={handlePasteLimit(ru, NAME_MAX, setName, setErrors, "name")}
             onChange={(e) => {
-              const v = e.target.value;
-              setName(v);
-              setErrors(validateAll({ name: v }));
+              const raw = e.target.value;
+
+              const sanitized = sanitizeNameForTyping(raw);
+              const next = clampToMax(sanitized, NAME_MAX);
+
+              setName(next);
+
+              if (sanitized.length > NAME_MAX) {
+                setErrors((prev) => ({ ...prev, name: limitMessage(ru, NAME_MAX) }));
+              } else {
+                setErrors(validateAll({ name: next }));
+              }
             }}
             onBlur={() => setErrors(validateAll())}
             disabled={isLoading}
@@ -307,10 +453,18 @@ export function ContactForm({ locale }: { locale: Locale }) {
             onChange={(e) => {
               const raw = e.target.value;
 
-              const { value: nextValue, changedByAutoprefix } = smartPhoneFromUser(phone, raw);
+              const { value: smartValue, changedByAutoprefix } = smartPhoneFromUser(phone, raw);
 
-              setPhone(nextValue);
-              setErrors(validateAll({ phone: nextValue }));
+              const max = phoneMaxLenByValue(smartValue);
+              const limitedValue = clampToMax(smartValue, max);
+
+              setPhone(limitedValue);
+
+              if (smartValue.length > max) {
+                setErrors((prev) => ({ ...prev, phone: limitMessage(ru, max) }));
+              } else {
+                setErrors(validateAll({ phone: limitedValue }));
+              }
 
               if (changedByAutoprefix) {
                 requestAnimationFrame(() => {
@@ -325,7 +479,7 @@ export function ContactForm({ locale }: { locale: Locale }) {
             disabled={isLoading}
             className={inputBase}
             style={inputStyle}
-            placeholder={ru ? "+7___________ / 7___________ / 8___________" : "+7... / 7... / 8..."}
+            placeholder={ru ? "+7" : "+7"}
             inputMode="tel"
             autoComplete="tel"
           />
@@ -335,10 +489,21 @@ export function ContactForm({ locale }: { locale: Locale }) {
         <Field label="Email" error={errors.email}>
           <input
             value={email}
+            onBeforeInput={handleBeforeInputLimit(ru, EMAIL_MAX, email, setErrors, "email")}
+            onPaste={handlePasteLimit(ru, EMAIL_MAX, setEmail, setErrors, "email")}
             onChange={(e) => {
-              const v = e.target.value;
-              setEmail(v);
-              setErrors(validateAll({ email: v }));
+              const raw = e.target.value;
+
+              const sanitized = sanitizeEmailForTyping(raw);
+              const next = clampToMax(sanitized, EMAIL_MAX);
+
+              setEmail(next);
+
+              if (sanitized.length > EMAIL_MAX) {
+                setErrors((prev) => ({ ...prev, email: limitMessage(ru, EMAIL_MAX) }));
+              } else {
+                setErrors(validateAll({ email: next }));
+              }
             }}
             onBlur={() => setErrors(validateAll())}
             disabled={isLoading}
@@ -352,32 +517,44 @@ export function ContactForm({ locale }: { locale: Locale }) {
 
         {/* Сообщение */}
         <Field label={ru ? "Сообщение" : "Message"} error={errors.message}>
-          <textarea
-            value={message}
-            onChange={(e) => {
-              const v = e.target.value;
-              setMessage(v);
-              setErrors(validateAll({ message: v }));
-            }}
-            onBlur={() => setErrors(validateAll())}
-            disabled={isLoading}
-            rows={5}
-            className={[inputBase, "resize-none"].join(" ")}
-            style={inputStyle}
-            placeholder={
-              ru
-                ? "Коротко опишите задачу: объект, метраж, сроки, стиль…"
-                : "Briefly describe: type, size, timeline, style…"
-            }
-            required
-          />
+          <div className="grid gap-2">
+            <textarea
+              value={message}
+              onBeforeInput={handleBeforeInputLimit(ru, MESSAGE_MAX, message, setErrors, "message")}
+              onPaste={handlePasteLimit(ru, MESSAGE_MAX, setMessage, setErrors, "message")}
+              onChange={(e) => {
+                const raw = e.target.value;
+                const next = clampToMax(raw, MESSAGE_MAX);
+
+                setMessage(next);
+
+                if (raw.length > MESSAGE_MAX) {
+                  setErrors((prev) => ({ ...prev, message: limitMessage(ru, MESSAGE_MAX) }));
+                } else {
+                  setErrors(validateAll({ message: next }));
+                }
+              }}
+              onBlur={() => setErrors(validateAll())}
+              disabled={isLoading}
+              rows={5}
+              className={[inputBase, "resize-none"].join(" ")}
+              style={inputStyle}
+              placeholder={
+                ru
+                  ? "Коротко опишите задачу: объект, метраж, сроки, стиль…"
+                  : "Briefly describe: type, size, timeline, style…"
+              }
+              required
+            />
+
+            {/* счетчик справа, без дубля "достигнут лимит" */}
+            <div className="flex justify-end text-xs" style={{ color: "var(--muted)" }}>
+              {message.length}/{MESSAGE_MAX}
+            </div>
+          </div>
         </Field>
 
-        <button
-          type="submit"
-          disabled={!canSubmit || isLoading}
-          className="btn-cta group mt-2"
-        >
+        <button type="submit" disabled={!canSubmit || isLoading} className="btn-cta group mt-2">
           {isLoading ? (ru ? "Отправка..." : "Sending...") : ru ? "Отправить" : "Send"}
           <span
             aria-hidden
