@@ -267,8 +267,14 @@ export function Header({ locale }: { locale: Locale }) {
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       >
-        {/* Backdrop */}
-        <div
+        {/* 
+          Backdrop:
+          - закрывает меню по тапу/клику в “пустую область”
+          - стоит ПОД панелью, но НАД страницей
+        */}
+        <button
+          type="button"
+          aria-label="Close menu"
           className={`absolute inset-0 transition-opacity duration-500 ease-out ${
             open ? "opacity-100" : "opacity-0"
           }`}
@@ -287,15 +293,31 @@ export function Header({ locale }: { locale: Locale }) {
             boxShadow: "var(--shadow)",
           }}
         >
-          <nav className="px-4 py-4">
+          {/* 
+            Делегирование клика:
+            Если нажали на любой пункт (или внутри него) — закрываем меню.
+            Это надёжнее, чем onClick на каждом Link, и не ломается от вложенных span и т.п.
+          */}
+          <nav
+            className="px-2 py-2"
+            onClick={(e) => {
+              const target = e.target as HTMLElement | null;
+              if (!target) return;
+              const a = target.closest("a");
+              if (a) setOpen(false);
+            }}
+          >
             {items.map((it) => {
               const isActiveLink = it.key === activeKey;
+
               return (
                 <Link
                   key={it.key}
                   href={it.href}
-                  onClick={() => setOpen(false)}
-                  className="block px-2 py-4 text-base transition-colors duration-200"
+                  className={[
+                    "block rounded-xl px-4 py-4 text-base transition-colors duration-200",
+                    "focus-visible:outline-none",
+                  ].join(" ")}
                   style={{
                     color: isActiveLink ? "var(--text)" : "var(--muted)",
                     fontWeight: isActiveLink ? 500 : 400,
@@ -306,6 +328,22 @@ export function Header({ locale }: { locale: Locale }) {
               );
             })}
           </nav>
+
+          {/* Hover/focus подсветка пунктов без JS */}
+          <style jsx>{`
+            nav :global(a:hover) {
+              background: var(--hover);
+              color: var(--text) !important;
+            }
+            nav :global(a:active) {
+              background: color-mix(in srgb, var(--hover) 70%, transparent);
+            }
+            nav :global(a:focus-visible) {
+              background: var(--hover);
+              outline: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+              outline-offset: 2px;
+            }
+          `}</style>
         </div>
       </div>
     </header>
