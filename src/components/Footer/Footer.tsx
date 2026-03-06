@@ -4,7 +4,8 @@ type Locale = "ru" | "en";
 
 const labels = {
   ru: {
-    aboutText: "Премиальный дизайн интерьера в Санкт-Петербурге. Пространства, отражающие вашу индивидуальность.",
+    aboutText:
+      "Премиальный дизайн интерьера в Санкт-Петербурге. Пространства, отражающие вашу индивидуальность.",
     contacts: "Контакты",
     navigation: "Навигация",
     social: "Соцсети",
@@ -15,9 +16,11 @@ const labels = {
       contacts: "Контакты",
     },
     copyright: "Все права защищены.",
+    location: "Санкт-Петербург, Россия",
   },
   en: {
-    aboutText: "Premium interior design in Saint Petersburg. Creating spaces that reflect your individuality.",
+    aboutText:
+      "Premium interior design in Saint Petersburg. Creating spaces that reflect your individuality.",
     contacts: "Contacts",
     navigation: "Navigation",
     social: "Social",
@@ -28,6 +31,7 @@ const labels = {
       contacts: "Contacts",
     },
     copyright: "All rights reserved.",
+    location: "Saint Petersburg, Russia",
   },
 } as const;
 
@@ -100,12 +104,17 @@ function TelegramIcon() {
 export function Footer({ locale }: { locale: Locale }) {
   const t = labels[locale];
 
-  // можешь потом вынести в site config
   const phoneText = "+7 (923) 614-48-64";
   const phoneHref = "tel:+79236144864";
-  const emailText = "fedortsov.ann@gmail.com";
-  const emailHref = "mailto:fedortsov.ann@gmail.com";
-  const locationText = "Saint Petersburg, Russia";
+
+  const emailText = "fedortsova.ann@gmail.com";
+  const emailHref = "mailto:fedortsova.ann@gmail.com";
+
+  const locationText = t.location;
+
+  const instagramHref = "https://www.instagram.com/anny_fedortsova";
+  const pinterestHref = "https://pinterest.com/";
+  const telegramHref = "https://t.me/anny_bavykina";
 
   return (
     <footer className="mt-20 border-t" style={{ borderColor: "var(--border)" }}>
@@ -126,29 +135,37 @@ export function Footer({ locale }: { locale: Locale }) {
             <div className="text-xs uppercase tracking-widest" style={{ color: "var(--text)" }}>
               {t.contacts}
             </div>
+              <div
+                className="mt-6 flex flex-col gap-4 text-sm"
+                style={{ color: "var(--muted)" }}
+              >
+                <a
+                  href={phoneHref}
+                  className="footer-row flex items-start gap-3 break-words"
+                >
+                  <span className="footer-ico shrink-0" aria-hidden="true">
+                    <PhoneIcon />
+                  </span>
+                  <span>{phoneText}</span>
+                </a>
 
-            <div className="mt-6 space-y-4 text-sm" style={{ color: "var(--muted)" }}>
-              <a href={phoneHref} className="footer-row inline-flex items-center gap-3">
-                <span className="footer-ico" aria-hidden="true">
-                  <PhoneIcon />
-                </span>
-                <span>{phoneText}</span>
-              </a>
+                <a
+                  href={emailHref}
+                  className="footer-row flex items-start gap-3 break-all"
+                >
+                  <span className="footer-ico shrink-0" aria-hidden="true">
+                    <MailIcon />
+                  </span>
+                  <span>{emailText}</span>
+                </a>
 
-              <a href={emailHref} className="footer-row inline-flex items-center gap-3">
-                <span className="footer-ico" aria-hidden="true">
-                  <MailIcon />
-                </span>
-                <span>{emailText}</span>
-              </a>
-
-              <div className="inline-flex items-center gap-3">
-                <span className="footer-ico" aria-hidden="true">
-                  <LocationIcon />
-                </span>
-                <span>{locationText}</span>
+                <div className="flex items-start gap-3">
+                  <span className="footer-ico shrink-0" aria-hidden="true">
+                    <LocationIcon />
+                  </span>
+                  <span>{locationText}</span>
+                </div>
               </div>
-            </div>
           </div>
 
           {/* NAV */}
@@ -180,13 +197,33 @@ export function Footer({ locale }: { locale: Locale }) {
             </div>
 
             <div className="mt-6 flex items-center gap-4">
-              <a className="footer-social" href="#" aria-label="Instagram">
+              <a
+                className="footer-social"
+                href={instagramHref}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Instagram"
+              >
                 <InstagramIcon />
               </a>
-              <a className="footer-social" href="#" aria-label="Pinterest">
+
+              <a
+                className="footer-social"
+                href={pinterestHref}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Pinterest"
+              >
                 <PinIcon />
               </a>
-              <a className="footer-social" href="#" aria-label="Telegram">
+
+              <a
+                className="footer-social"
+                href={telegramHref}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Telegram"
+              >
                 <TelegramIcon />
               </a>
             </div>

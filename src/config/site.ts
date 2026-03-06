@@ -12,7 +12,7 @@ export const SITE = {
   phoneDisplay: "+7 (923) 614-48-64",
   phoneE164: "+79236144864",
 
-  email: "fedortsov.ann@gmail.com",
+  email: "fedortsova.ann@gmail.com",
 
   instagramHandle: "@anny_fedortsova",
   instagramUrl: "https://instagram.com/anny_fedortsova",
